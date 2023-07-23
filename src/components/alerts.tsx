@@ -10,7 +10,7 @@ export function AlertSuccess(text: string) {
     pauseOnHover: true,
     draggable: true,
     progress: undefined,
-    theme: 'light'
+    theme: 'colored'
   })
 }
 
@@ -23,7 +23,7 @@ export function AlertError(text: string) {
     pauseOnHover: true,
     draggable: true,
     progress: undefined,
-    theme: 'light'
+    theme: 'colored'
   })
 }
 
@@ -36,7 +36,7 @@ export function AlertWarn(text: string) {
     pauseOnHover: true,
     draggable: true,
     progress: undefined,
-    theme: 'light'
+    theme: 'colored'
   })
 }
 
@@ -49,6 +49,6 @@ export function AlertInfo(text: string) {
     pauseOnHover: true,
     draggable: true,
     progress: undefined,
-    theme: 'light'
+    theme: 'colored'
   })
 }

@@ -4,9 +4,10 @@ import { UserType } from '@/Types/UserType'
 import { AlertInfo } from '@/components/alerts'
 import { Button } from '@/components/buttons'
 import { Label, styleInput } from '@/components/inputs'
-import { TextError } from '@/components/texts'
+import { TextError, Title } from '@/components/texts'
 import { handlePhoneChange } from '@/services/identifiers'
 import { postUser } from '@/store/User'
+import { Eye, EyeSlash } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -15,7 +16,6 @@ export default function Register() {
     register,
     handleSubmit,
     reset,
-    setValue,
     formState: { errors }
   } = useForm<UserType>({
     defaultValues: {
@@ -31,6 +31,8 @@ export default function Register() {
   const [confirmedPassword, setConfirmedPassword] = useState<string>('')
   const [errorPasswordDifferent, setErrorPasswordDifferent] =
     useState<boolean>(false)
+  const [typePassword, setTypePassword] = useState<string>('password')
+  const [iconPassword, setIconPassword] = useState(<Eye size={32} />)
 
   async function onSubmit(data: UserType) {
     if (data.receiveOffers.toString() == 'yes') {
@@ -38,6 +40,7 @@ export default function Register() {
     } else {
       data.receiveOffers = false
     }
+    data.phone = data.phone.replace(/\D/g, '')
 
     if (password != confirmedPassword) {
       AlertInfo('Verifique suas senhas! Elas são diferentes!')
@@ -64,9 +67,7 @@ export default function Register() {
         <img src="logomarca.png" className="lg:h-[5%] absolute top-4 ml-5" />
 
         <div className="w-[70%] m-auto">
-          <h1 className="mt-5 mb-5 text-xl font-bold text-center">
-            Cadastre-se
-          </h1>
+          <Title title="Cadastre-se" />
           <div className="mt-1 mb-1">
             <Label text="Nome" />
             <input
@@ -111,46 +112,78 @@ export default function Register() {
               className={styleInput}
               {...register('phone', {
                 required: 'Informe esse campo',
-                maxLength: { value: 14, message: 'Contato Inválido!' }
+                maxLength: { value: 17, message: 'Contato Inválido!' }
               })}
               name="phone"
               onChange={handlePhoneChange}
-              maxLength={14}
+              maxLength={17}
             />
             {errors.phone && <TextError text={errors.phone.message} />}
           </div>
 
           <div className="mt-1 mb-1">
             <Label text="Senha" />
-            <input
-              type="password"
-              id="password"
-              placeholder="Informe sua Senha"
-              className={styleInput}
-              {...register('password', {
-                required: 'Informe esse campo'
-              })}
-              onChange={(e: any) => {
-                setPassword(e.target.value)
-              }}
-              name="password"
-            />
+            <span className="flex justify-start items-center w-[105%]">
+              <input
+                type={typePassword}
+                id="password"
+                placeholder="Informe sua Senha"
+                className={styleInput}
+                {...register('password', {
+                  required: 'Informe esse campo'
+                })}
+                onChange={(e: any) => {
+                  setPassword(e.target.value)
+                }}
+                name="password"
+              />
+              <span
+                className="relative z-20 right-10 cursor-pointer hover:scale-105 duration-150"
+                onClick={() => {
+                  if (typePassword == 'password') {
+                    setTypePassword('text')
+                    setIconPassword(<EyeSlash size={32} />)
+                  } else {
+                    setTypePassword('password')
+                    setIconPassword(<Eye size={32} />)
+                  }
+                }}
+              >
+                {iconPassword}
+              </span>
+            </span>
             {errors.password && <TextError text={errors.password.message} />}
           </div>
 
           <div className="mt-1 mb-1">
             <Label text="Repetir Senha" />
-            <input
-              id="confirmedPassword"
-              type="password"
-              placeholder="Repita sua Senha"
-              className={styleInput}
-              value={confirmedPassword}
-              onChange={(e: any) => {
-                setConfirmedPassword(e.target.value)
-              }}
-              name="confirmedPassword"
-            />
+            <span className="flex justify-start items-center w-[105%]">
+              <input
+                id="confirmedPassword"
+                type={typePassword}
+                placeholder="Repita sua Senha"
+                className={styleInput}
+                value={confirmedPassword}
+                onChange={(e: any) => {
+                  setConfirmedPassword(e.target.value)
+                }}
+                name="confirmedPassword"
+              />
+              <span
+                className="relative z-20 right-10 cursor-pointer hover:scale-105 duration-150"
+                onClick={() => {
+                  if (typePassword == 'password') {
+                    setTypePassword('text')
+                    setIconPassword(<EyeSlash size={32} />)
+                  } else {
+                    setTypePassword('password')
+                    setIconPassword(<Eye size={32} />)
+                  }
+                }}
+              >
+                {iconPassword}
+              </span>
+            </span>
             {errorPasswordDifferent && (
               <TextError text="Senhas são Diferentes!" />
             )}

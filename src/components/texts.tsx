@@ -7,11 +7,7 @@ type TitleType = {
 
 export function Title(props: TitleType) {
   return (
-    <h1
-      className={`xl:text-3xl text-2xl font-bold text-center ${props.stylePlus}`}
-    >
-      {props.title}
-    </h1>
+    <h1 className="mt-5 mb-5 text-xl font-bold text-center">{props.title}</h1>
   )
 }
 
