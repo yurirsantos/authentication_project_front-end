@@ -1,6 +1,7 @@
 import { UserType } from '@/Types/UserType'
 import { api } from '../services/api'
 import { AlertError, AlertInfo, AlertSuccess } from '@/components/alerts'
+import { PasswordChangeCodeType } from '@/Types/PasswordChangeCodeType'
 
 const route = '/users'
 
@@ -86,6 +87,20 @@ export const forgotPasswordSendEmail = async (emailUser: string) => {
     })
     .catch((error: any) => {
       AlertError('Recuperação de senha não enviada!')
+      console.error(error)
+    })
+}
+
+export const replacePasswordUser = async (data: PasswordChangeCodeType) => {
+  return await api
+    .post('passwordChangeCodes/replacePassword', data)
+    .then((response: any) => {
+      AlertSuccess('Senha alterada com sucesso!!')
+      return response.data
+    })
+    .catch((error: any) => {
+      AlertError('Senha não alterada!')
+      AlertInfo(error.response.data.error)
       console.error(error)
     })
 }

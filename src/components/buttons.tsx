@@ -2,7 +2,7 @@ import Link from 'next/link'
 import React from 'react'
 
 type ButtonType = {
-  title: string
+  title: any
   stylePlus?: string
   onClick?: any
   link?: string
