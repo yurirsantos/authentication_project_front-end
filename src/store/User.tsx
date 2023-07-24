@@ -96,7 +96,7 @@ export const forgotPasswordSendEmail = async (emailUser: string) => {
 
 export const replacePasswordUser = async (data: PasswordChangeCodeType) => {
   return await api
-    .post('passwordChangeCodes/replacePassword', data)
+    .post('changeCodes/replacePassword', data)
     .then((response: any) => {
       AlertSuccess('Senha alterada com sucesso!!')
       return response.data
