@@ -63,3 +63,29 @@ export const deleteUser = async (userId: string) => {
       console.error(error)
     })
 }
+
+export const forgotPasswordSendSMS = async (contactUser: string) => {
+  return await api
+    .post(`${route}/replacePassword/sendSMS/${contactUser}`)
+    .then((response: any) => {
+      AlertSuccess('Recuperação de senha enviada com sucesso!')
+      return response.data
+    })
+    .catch((error: any) => {
+      AlertError('Recuperação de senha não enviada!')
+      console.error(error)
+    })
+}
+
+export const forgotPasswordSendEmail = async (emailUser: string) => {
+  return await api
+    .post(`${route}/replacePassword/sendEmail/${emailUser}`)
+    .then((response: any) => {
+      AlertSuccess('Recuperação de senha enviada com sucesso!')
+      return response.data
+    })
+    .catch((error: any) => {
+      AlertError('Recuperação de senha não enviada!')
+      console.error(error)
+    })
+}

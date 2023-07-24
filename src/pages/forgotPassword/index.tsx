@@ -4,6 +4,7 @@ import { AlertInfo } from '@/components/alerts'
 import { Button } from '@/components/buttons'
 import { Label, styleInput } from '@/components/inputs'
 import { TextError, Title } from '@/components/texts'
+import { forgotPasswordSendEmail, forgotPasswordSendSMS } from '@/store/User'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -11,6 +12,7 @@ export default function ForgotPassword() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors }
   } = useForm<ForgotPasswordType>({
     defaultValues: {
@@ -19,8 +21,23 @@ export default function ForgotPassword() {
   })
 
   async function onSubmit(data: ForgotPasswordType) {
-    console.log(data)
-    AlertInfo('Função em Desenvolvimento')
+    if (data.login.includes('@')) {
+      const emailUser = data.login
+      const returnForgotPasswordSendEmail = await forgotPasswordSendEmail(
+        emailUser
+      )
+      if (returnForgotPasswordSendEmail) {
+        reset()
+      }
+    } else {
+      const contactUser = data.login.replace(/\D/g, '')
+      const returnForgotPasswordSendSMS = await forgotPasswordSendSMS(
+        contactUser
+      )
+      if (returnForgotPasswordSendSMS) {
+        reset()
+      }
+    }
   }
   function resendMessage() {
     AlertInfo('Função em Desenvolvimento')
