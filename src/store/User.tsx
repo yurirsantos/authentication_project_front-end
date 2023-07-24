@@ -24,7 +24,6 @@ export const postUser = async (data: UserType) => {
     })
     .catch((error: any) => {
       AlertError('Usuário(a) não Cadastrado(a)!')
-      AlertInfo(error.response.data.error)
       console.error(error)
     })
 }
@@ -50,9 +49,6 @@ export const updateUser = async (userId: string, data: UserType) => {
     })
     .catch((error: any) => {
       AlertError('Usuário(a) Não Atualizado(a)!')
-      setTimeout(() => {
-        AlertInfo(error.response.data.error)
-      }, 100)
       console.error(error)
     })
 }

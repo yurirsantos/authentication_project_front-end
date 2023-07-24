@@ -29,7 +29,7 @@ export default function ForgotPassword() {
   return (
     <main className="flex justify-center items-center gap-5">
       <div className="w-[40%] m-auto">
-        <img src="logomarca.png" className="lg:h-[5%] absolute top-4 ml-5" />
+        <img src="logomarca.png" className="h-[5%] absolute top-4 ml-5" />
 
         <div className="w-[70%] m-auto">
           <Title title="Recuperar Senha" />

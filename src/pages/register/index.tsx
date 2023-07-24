@@ -1,15 +1,18 @@
 'use client'
-
 import { UserType } from '@/Types/UserType'
 import { AlertInfo } from '@/components/alerts'
 import { Button } from '@/components/buttons'
-import { Label, styleInput } from '@/components/inputs'
+import { Label, styleInput, styleSelect } from '@/components/inputs'
 import { TextError, Title } from '@/components/texts'
-import { handlePhoneChange } from '@/services/identifiers'
 import { postUser } from '@/store/User'
 import { Eye, EyeSlash } from '@phosphor-icons/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
+import intlTelInput from 'intl-tel-input'
+import 'intl-tel-input/build/js/utils'
+import { handlePhoneChange } from '@/services/identifiers'
+import { ContactType } from '@/Types/ContactType'
+import { CountrySelectType } from '@/Types/CountrySelectType'
 
 export default function Register() {
   const {
@@ -20,7 +23,6 @@ export default function Register() {
   } = useForm<UserType>({
     defaultValues: {
       name: '',
-      phone: '',
       email: '',
       password: '',
       acceptTerm: false,
@@ -33,22 +35,35 @@ export default function Register() {
     useState<boolean>(false)
   const [typePassword, setTypePassword] = useState<string>('password')
   const [iconPassword, setIconPassword] = useState(<Eye size={32} />)
+  const inputRef: any = useRef(null)
+  const [iti, setIti] = useState<any>(null)
+  const [phone, setPhone] = useState<string>('')
+  const [countrySelect, setCountrySelect] = useState<CountrySelectType>()
 
   async function onSubmit(data: UserType) {
-    if (data.receiveOffers.toString() == 'yes') {
-      data.receiveOffers = true
-    } else {
-      data.receiveOffers = false
-    }
-    data.phone = data.phone.replace(/\D/g, '')
+    if (countrySelect) {
+      if (data.receiveOffers.toString() == 'yes') {
+        data.receiveOffers = true
+      } else {
+        data.receiveOffers = false
+      }
 
-    if (password != confirmedPassword) {
-      AlertInfo('Verifique suas senhas! Elas são diferentes!')
-    } else {
-      const returnPostUser = await postUser(data)
-      if (returnPostUser) {
-        reset()
-        setConfirmedPassword('')
+      const dataContact: ContactType = {
+        codCountry: countrySelect.dialCode,
+        contact: phone.replace(/\D/g, '')
+      }
+
+      data.contact = dataContact
+
+      if (password != confirmedPassword) {
+        AlertInfo('Verifique suas senhas! Elas são diferentes!')
+      } else {
+        const returnPostUser = await postUser(data)
+        if (returnPostUser) {
+          reset()
+          setConfirmedPassword('')
+          setPhone('')
+        }
       }
     }
   }
@@ -60,11 +75,32 @@ export default function Register() {
       setErrorPasswordDifferent(false)
     }
   }, [confirmedPassword, password])
+  useEffect(() => {
+    if (!iti) {
+      const instance: any = intlTelInput(inputRef.current, {
+        initialCountry: 'br'
+      })
+      setIti(instance)
+
+      const handleInputChange = () => {
+        if (iti) {
+          const countryData = iti.getSelectedCountryData()
+          if (countrySelect) {
+            setCountrySelect(countryData)
+          }
+        }
+      }
+
+      inputRef.current.addEventListener('input', handleInputChange)
+    } else {
+      setCountrySelect(iti.getSelectedCountryData())
+    }
+  }, [phone])
 
   return (
     <main className="flex justify-center items-center gap-5">
       <div className="w-[40%] m-auto">
-        <img src="logomarca.png" className="lg:h-[5%] absolute top-4 ml-5" />
+        <img src="logomarca.png" className="h-[5%] absolute top-4 ml-5" />
 
         <div className="w-[70%] m-auto">
           <Title title="Cadastre-se" />
@@ -105,20 +141,20 @@ export default function Register() {
 
           <div className="mt-1 mb-1">
             <Label text="Celular" />
+
             <input
               type="text"
               id="phone"
               placeholder="Informe seu Contato"
-              className={styleInput}
-              {...register('phone', {
-                required: 'Informe esse campo',
-                maxLength: { value: 17, message: 'Contato Inválido!' }
-              })}
+              className="input bg-white border-1 border-black lg:w-[170%] placeholder:italic rounded-none"
               name="phone"
-              onChange={handlePhoneChange}
-              maxLength={17}
+              onChange={(e: any) => {
+                handlePhoneChange(e)
+                setPhone(e.target.value)
+              }}
+              maxLength={14}
+              ref={inputRef}
             />
-            {errors.phone && <TextError text={errors.phone.message} />}
           </div>
 
           <div className="mt-1 mb-1">
@@ -138,7 +174,7 @@ export default function Register() {
                 name="password"
               />
               <span
-                className="relative z-20 right-10 cursor-pointer hover:scale-105 duration-150"
+                className="relative right-10 cursor-pointer hover:scale-105 duration-150"
                 onClick={() => {
                   if (typePassword == 'password') {
                     setTypePassword('text')
@@ -170,7 +206,7 @@ export default function Register() {
                 name="confirmedPassword"
               />
               <span
-                className="relative z-20 right-10 cursor-pointer hover:scale-105 duration-150"
+                className="relative right-10 cursor-pointer hover:scale-105 duration-150"
                 onClick={() => {
                   if (typePassword == 'password') {
                     setTypePassword('text')
