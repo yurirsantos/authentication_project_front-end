@@ -1,7 +1,10 @@
 import { UserType } from '@/Types/UserType'
 import { api } from '../services/api'
 import { AlertError, AlertInfo, AlertSuccess } from '@/components/alerts'
-import { PasswordChangeCodeType } from '@/Types/PasswordChangeCodeType'
+import {
+  ActiveAccountChangeCodeType,
+  PasswordChangeCodeType
+} from '@/Types/PasswordChangeCodeType'
 
 const route = '/users'
 
@@ -100,6 +103,34 @@ export const replacePasswordUser = async (data: PasswordChangeCodeType) => {
     })
     .catch((error: any) => {
       AlertError('Senha não alterada!')
+      AlertInfo(error.response.data.error)
+      console.error(error)
+    })
+}
+
+export const activeAccountUser = async (data: ActiveAccountChangeCodeType) => {
+  return await api
+    .post('changeCodes/activeAccount', data)
+    .then((response: any) => {
+      AlertSuccess('Conta ativada com sucesso!')
+      return response.data
+    })
+    .catch((error: any) => {
+      AlertError('Conta não Ativada!')
+      AlertInfo(error.response.data.error)
+      console.error(error)
+    })
+}
+
+export const resetSendEmailActiveAccountUser = async (email: string) => {
+  return await api
+    .post('users/activeAccount/sendEmail/:email', email)
+    .then((response: any) => {
+      AlertSuccess('E-mail enviado com sucesso!')
+      return response.data
+    })
+    .catch((error: any) => {
+      AlertError('E-mail não enviado!')
       AlertInfo(error.response.data.error)
       console.error(error)
     })

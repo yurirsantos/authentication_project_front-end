@@ -5,7 +5,7 @@ import { Button } from '@/components/buttons'
 import { Label, styleInput, styleSelect } from '@/components/inputs'
 import { TextError, Title } from '@/components/texts'
 import { postUser } from '@/store/User'
-import { Eye, EyeSlash } from '@phosphor-icons/react'
+import { Eye, EyeSlash, SpinnerGap } from '@phosphor-icons/react'
 import { useEffect, useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import intlTelInput from 'intl-tel-input'
@@ -31,17 +31,19 @@ export default function Register() {
   })
   const [password, setPassword] = useState<string>()
   const [confirmedPassword, setConfirmedPassword] = useState<string>('')
-  const [errorPasswordDifferent, setErrorPasswordDifferent] =
-    useState<boolean>(false)
+  const [errorPassword, setErrorPassword] = useState<boolean>(false)
+  const [errorPasswordMessage, setErrorPasswordMessage] = useState<string>('')
   const [typePassword, setTypePassword] = useState<string>('password')
   const [iconPassword, setIconPassword] = useState(<Eye size={32} />)
   const inputRef: any = useRef(null)
   const [iti, setIti] = useState<any>(null)
   const [phone, setPhone] = useState<string>('')
   const [countrySelect, setCountrySelect] = useState<CountrySelectType>()
+  const [loadingRegisterUser, setLoadingRegisterUser] = useState<boolean>(false)
 
   async function onSubmit(data: UserType) {
-    if (countrySelect) {
+    setLoadingRegisterUser(true)
+    if (countrySelect && password) {
       if (data.receiveOffers.toString() == 'yes') {
         data.receiveOffers = true
       } else {
@@ -55,24 +57,54 @@ export default function Register() {
 
       data.contact = dataContact
 
-      if (password != confirmedPassword) {
-        AlertInfo('Verifique suas senhas! Elas são diferentes!')
-      } else {
-        const returnPostUser = await postUser(data)
-        if (returnPostUser) {
-          reset()
-          setConfirmedPassword('')
-          setPhone('')
+      const verifyPasswordBoolean = verifyPassword(password)
+      if (verifyPasswordBoolean) {
+        if (password != confirmedPassword) {
+          AlertInfo('Verifique suas senhas! Elas são diferentes!')
+          setErrorPasswordMessage('Senhas são Diferentes!')
+        } else {
+          setErrorPassword(false)
+          const returnPostUser: UserType = await postUser(data)
+          if (returnPostUser) {
+            reset()
+            setConfirmedPassword('')
+            setPhone('')
+            setLoadingRegisterUser(false)
+            window.location.replace('/')
+          }
         }
+      } else {
+        setErrorPasswordMessage(
+          'Senha fraca! Senha deve conter no mínimo 8 caracteres, 1 número, 1 caractere especial'
+        )
+        AlertInfo(
+          'Senha fraca! Senha deve conter no mínimo 8 caracteres, 1 número, 1 caractere especial'
+        )
+        setErrorPassword(true)
       }
     }
+  }
+  function verifyPassword(password: string) {
+    if (password.length < 8) {
+      return false
+    }
+
+    const specialCharacter = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/
+    const number = /[0-9]/
+
+    if (!specialCharacter.test(password) || !number.test(password)) {
+      return false
+    }
+
+    return true
   }
 
   useEffect(() => {
     if (confirmedPassword && confirmedPassword != password) {
-      setErrorPasswordDifferent(true)
+      setErrorPassword(true)
+      setErrorPasswordMessage('Senhas são Diferentes!')
     } else {
-      setErrorPasswordDifferent(false)
+      setErrorPassword(false)
     }
   }, [confirmedPassword, password])
   useEffect(() => {
@@ -220,9 +252,7 @@ export default function Register() {
                 {iconPassword}
               </span>
             </span>
-            {errorPasswordDifferent && (
-              <TextError text="Senhas são Diferentes!" />
-            )}
+            {errorPassword && <TextError text={errorPasswordMessage} />}
           </div>
 
           <div className="mt-4 mb-3">
@@ -284,7 +314,18 @@ export default function Register() {
           </div>
 
           <div className="lg:w-full flex justify-center items-center mt-5">
-            <Button title="Cadastrar" onClick={handleSubmit(onSubmit)} />
+            {loadingRegisterUser ? (
+              <Button
+                title={
+                  <p className="flex justify-center items-center gap-2">
+                    Carregando <SpinnerGap size={32} className="animate-spin" />
+                  </p>
+                }
+                onClick={handleSubmit(onSubmit)}
+              />
+            ) : (
+              <Button title="Cadastrar" onClick={handleSubmit(onSubmit)} />
+            )}
           </div>
 
           <div className="mt-8 text-center">

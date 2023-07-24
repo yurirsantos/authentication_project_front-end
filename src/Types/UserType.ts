@@ -8,4 +8,5 @@ export type UserType = {
   acceptTerm: boolean
   receiveOffers: boolean
   contact: ContactType;
+  status?: boolean;
 }

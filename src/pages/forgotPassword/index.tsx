@@ -37,11 +37,12 @@ export default function ForgotPassword() {
   const [errorPasswordDifferent, setErrorPasswordDifferent] =
     useState<boolean>(false)
   const [errorPassword, setErrorPassword] = useState<boolean>(false)
+  const [errorPasswordMessage, setErrorPasswordMessage] = useState<string>('')
   const [password, setPassword] = useState<string>()
   const [confirmedPassword, setConfirmedPassword] = useState<string>('')
   const [typePassword, setTypePassword] = useState<string>('password')
   const [iconPassword, setIconPassword] = useState(<Eye size={32} />)
-  const [code, setCode] = React.useState<CodeState>({
+  const [code, setCode] = useState<CodeState>({
     0: '',
     1: '',
     2: '',
@@ -112,29 +113,57 @@ export default function ForgotPassword() {
     }
   }
   async function onSubmitReplacePassword() {
-    if (password == confirmedPassword) {
-      const codeReplacePassword =
-        code[0] + code[1] + code[2] + code[3].toString()
-      const data: PasswordChangeCodeType = {
-        code: parseInt(codeReplacePassword),
-        password
-      }
+    if (password) {
+      if (password == confirmedPassword) {
+        const codeReplacePassword =
+          code[0] + code[1] + code[2] + code[3].toString()
+        const data: PasswordChangeCodeType = {
+          code: parseInt(codeReplacePassword),
+          password
+        }
 
-      const returnReplacePasswordUser = await replacePasswordUser(data)
-      if (returnReplacePasswordUser) {
-        setPassword('')
-        setConfirmedPassword('')
-        setCode('')
-        setSendCodeReplacePassword(false)
-        window.location.replace('/')
+        const verifyPasswordBoolean = verifyPassword(password)
+        if (verifyPasswordBoolean) {
+          const returnReplacePasswordUser = await replacePasswordUser(data)
+          if (returnReplacePasswordUser) {
+            setPassword('')
+            setConfirmedPassword('')
+            setCode('')
+            setSendCodeReplacePassword(false)
+            window.location.replace('/')
+          }
+          setErrorPassword(false)
+        } else {
+          setErrorPasswordMessage(
+            'Senha fraca! Senha deve conter no mínimo 8 caracteres, 1 número, 1 caractere especial'
+          )
+          AlertInfo(
+            'Senha fraca! Senha deve conter no mínimo 8 caracteres, 1 número, 1 caractere especial'
+          )
+          setErrorPassword(true)
+        }
+      } else {
+        AlertInfo('Verifique suas senhas! Elas são diferentes!')
       }
-    } else {
-      AlertInfo('Verifique suas senhas! Elas são diferentes!')
     }
   }
   function resetForgotPassword() {
     setLoadingResetPassword(true)
     onSubmit({ login: loginUser })
+  }
+  function verifyPassword(password: string) {
+    if (password.length < 8) {
+      return false
+    }
+
+    const specialCharacter = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/
+    const number = /[0-9]/
+
+    if (!specialCharacter.test(password) || !number.test(password)) {
+      return false
+    }
+
+    return true
   }
 
   useEffect(() => {
@@ -238,7 +267,7 @@ export default function ForgotPassword() {
                     {iconPassword}
                   </span>
                 </span>
-                {errorPassword && <TextError text="Informe esse Campo!" />}
+                {errorPassword && <TextError text={errorPasswordMessage} />}
               </div>
 
               <div className="mt-1 mb-1">
